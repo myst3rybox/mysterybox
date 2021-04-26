@@ -56,6 +56,24 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         max_quantity = _max_quantity;
     }
     /**
+    * @dev get author address.
+    * @return The address of author.
+    */
+    function getAuthor() 
+    public view override
+    returns(address){
+        return author_address;
+    }
+    /**
+    * @dev get author address.
+    * @return The max quantity of box.
+    */
+    function getQuantity() 
+    public view override
+    returns(uint256){
+        return box_quantity;
+    }
+    /**
     * @dev generate boxes.
     * @param _counts The number of boxes that will be generated.
     */
