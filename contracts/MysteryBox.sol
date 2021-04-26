@@ -25,6 +25,7 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         uint256 level;
         uint256 price;
         uint256 status; // 0:boxed, 1:unboxed, 2:on auction, 3:swapping
+        string name;
     }
     attributes[] public boxes_attributes;
     /*
@@ -77,7 +78,7 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     * @dev generate boxes.
     * @param _counts The number of boxes that will be generated.
     */
-    function generateBoxes(uint256 _counts) 
+    function generate(uint256 _counts) 
     public onlyOwner override{
         require(box_quantity.add(_counts) <= max_quantity, "Max quantity limited.");
         if(!isApprovedForAll(msg.sender, address(this))){
@@ -85,7 +86,7 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         }
         for (uint256 index = 0; index < _counts; index++) {
             _mint(msg.sender, box_quantity, 1, "");  
-            attributes memory attr = attributes({types:0, level:0, price:sell_price, status:0});
+            attributes memory attr = attributes({types:0, level:0, price:sell_price, status:0, name:""});
             boxes_attributes.push(attr);
             box_quantity = box_quantity.add(1);
             emit GenerateBox(msg.sender, box_quantity);
@@ -133,5 +134,20 @@ contract MysteryBox is IMysteryBox, ERC1155 {
             boxes_attributes[_boxes[index]].status = 1;
             emit UnBox(msg.sender, index, boxes_attributes[_boxes[index]].types, boxes_attributes[_boxes[index]].level);
         }
+    }
+    function getAttributes(uint256 _index) 
+    public view override 
+    returns(uint256 types, uint256 level, uint256 price, uint256 status, string memory name){
+        attributes memory attr = boxes_attributes[_index];
+        types = attr.types;
+        level = attr.level;
+        price = attr.price;
+        status = attr.status;
+        name = attr.name;
+    }
+    function changeName(uint256 _index, string memory _name) 
+    public override {
+        require(balanceOf(msg.sender, _index) > 0, "Not this box's owner");
+        boxes_attributes[_index].name = _name;
     }
 }
