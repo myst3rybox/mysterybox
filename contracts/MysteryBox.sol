@@ -4,10 +4,10 @@ pragma solidity ^0.8.3;
  * @title MysteryBox ERC1155 token
  *
  * @dev Implementation of the mystery box.
- * @dev https://github.com/myst3rybox/solidity
+ * @dev https://github.com/myst3rybox/mysterybox
 */
 import "./IMysteryBox.sol";
-import "../interfaces/iRandomX.sol";
+import "./iRandomX.sol";
 import "../libraries/SafeMath.sol";
 contract MysteryBox is IMysteryBox, ERC1155 {
     using SafeMath for uint256;

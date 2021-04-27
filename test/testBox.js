@@ -1,5 +1,6 @@
 const RandomX = artifacts.require("RandomX");
 const MysteryBox = artifacts.require("MysteryBox");
+const TestRecv = artifacts.require("TestRecv");
 
 contract("MysteryBox", accounts => {
     it("RandomX should set caller.", async () => {
@@ -57,6 +58,39 @@ contract("MysteryBox", accounts => {
         assert.equal(
             attr.name, name,
             "MysteryBox change name is NOT match."
+        );
+    });
+    it("MysteryBox should transfer to other user.", async () => {
+        let instance = await MysteryBox.deployed();
+        let box_index = 0;
+        await instance.safeTransferFrom(accounts[0], accounts[1], box_index, 1, "0x0");
+        let balance = await instance.balanceOf(accounts[1], box_index);
+        assert.equal(
+            balance, 1,
+            "MysteryBox transfer to user is NOT match."
+        );
+    });
+    it("MysteryBox should transfer to contract.", async () => {
+        let instance = await MysteryBox.deployed();
+        let test = await TestRecv.deployed();
+        let box_index = 1;
+        await instance.safeTransferFrom(accounts[0], test.address, box_index, 1, "0x0");
+        let balance = await instance.balanceOf(TestRecv.address, box_index);
+        assert.equal(
+            balance, 1,
+            "MysteryBox transfer to contract is NOT match."
+        );
+    });
+    it("MysteryBox should transfer from contract.", async () => {
+        let instance = await MysteryBox.deployed();
+        let test = await TestRecv.deployed();
+        let box_index = 1;
+        console.log(instance.address, accounts[0]);
+        await test.sendTo(instance.address, accounts[0], box_index);
+        let balance = await instance.balanceOf(accounts[0], box_index);
+        assert.equal(
+            balance, 1,
+            "MysteryBox transfer from contract is NOT match."
         );
     });
 })
