@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
  * @dev Interface of the MysteryBox.
  */
 interface IMysteryBox is IERC1155 {
+    function changeOwner(address _newOwner) external;
     function getAuthor() external view returns(address);
     function getQuantity() external view returns(uint256);
     function generate(uint256 _counts) external;

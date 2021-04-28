@@ -38,10 +38,12 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     /*
         Events
     */
-    // Called when owner changed.
+    // Called when box is generate.
     event GenerateBox(address owner, uint256 index);
     // Called when box is unboxed.
     event UnBox(address owner, uint256 index, uint256 types, uint256 level);
+    // Called when owner changed.
+    event ChangeOwner(address _newOwner);
     /**
     * @dev constructor that sets the random, author, max quantity and owner address
     * @param _randomx The address of RandomX contract.
@@ -55,6 +57,16 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         randomx_address = _randomx;
         author_address = _author;
         max_quantity = _max_quantity;
+    }    
+    /**
+    * @dev Change the owner of contract
+    * @param _newOwner The address of new owner.
+    */
+    function changeOwner(address _newOwner)
+    public override onlyOwner{
+        require(address(0) != _newOwner, "Invalid owner address");
+        owner_address = _newOwner;
+        emit ChangeOwner(_newOwner);
     }
     /**
     * @dev get author address.
