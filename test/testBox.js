@@ -26,13 +26,13 @@ contract("MysteryBox", accounts => {
         let instance = await MysteryBox.deployed();
         let quantity = await instance.max_quantity.call();
         assert.equal(
-            quantity, 10,
+            quantity, 10000,
             "MysteryBox quantity NOT match."
         );
     });
     it("MysteryBox should generate box.", async () => {
         let instance = await MysteryBox.deployed();
-        await instance.generate(3);
+        await instance.generate(accounts[1], 3);
         quantity = await instance.box_quantity.call();
         assert.equal(
             quantity, 3,
@@ -41,7 +41,7 @@ contract("MysteryBox", accounts => {
     });
     it("MysteryBox should unbox.", async () => {
         let instance = await MysteryBox.deployed();
-        await instance.unBox([0,1]);
+        await instance.unBox([0,1], {from:accounts[1]});
         let attr = await instance.getAttributes(0);
         console.log(JSON.stringify(attr));
         assert.equal(
@@ -52,7 +52,7 @@ contract("MysteryBox", accounts => {
     it("MysteryBox should change name.", async () => {
         let instance = await MysteryBox.deployed();
         let name = "Hello Kitty";
-        await instance.changeName(0, name);
+        await instance.changeName(0, name, {from:accounts[1]});
         let attr = await instance.getAttributes(0);
         console.log(JSON.stringify(attr));
         assert.equal(
@@ -63,8 +63,8 @@ contract("MysteryBox", accounts => {
     it("MysteryBox should transfer to other user.", async () => {
         let instance = await MysteryBox.deployed();
         let box_index = 0;
-        await instance.safeTransferFrom(accounts[0], accounts[1], box_index, 1, "0x0");
-        let balance = await instance.balanceOf(accounts[1], box_index);
+        await instance.safeTransferFrom(accounts[1], accounts[2], box_index, 1, "0x0", {from:accounts[1]});
+        let balance = await instance.balanceOf(accounts[2], box_index);
         assert.equal(
             balance, 1,
             "MysteryBox transfer to user is NOT match."
@@ -74,7 +74,7 @@ contract("MysteryBox", accounts => {
         let instance = await MysteryBox.deployed();
         let test = await TestRecv.deployed();
         let box_index = 1;
-        await instance.safeTransferFrom(accounts[0], test.address, box_index, 1, "0x0");
+        await instance.safeTransferFrom(accounts[1], test.address, box_index, 1, "0x0", {from:accounts[1]});
         let balance = await instance.balanceOf(TestRecv.address, box_index);
         assert.equal(
             balance, 1,

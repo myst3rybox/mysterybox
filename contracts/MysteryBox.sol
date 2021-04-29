@@ -94,9 +94,6 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     function generate(address _to, uint256 _counts) 
     public onlyOwner override{
         require(box_quantity.add(_counts) <= max_quantity, "Max quantity limited.");
-        if(!isApprovedForAll(_to, msg.sender)){
-            setApprovalForAll(msg.sender, true);
-        }
         for (uint256 index = 0; index < _counts; index++) {
             _mint(_to, box_quantity, 1, "");  
             attributes memory attr = attributes({types:0, level:0, price:sell_price, status:0, name:""});
