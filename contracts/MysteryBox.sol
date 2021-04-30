@@ -15,6 +15,9 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         Datas
     */
     address public owner_address;
+    // Mapping from caller address to access rights
+    mapping(address => bool) public map_caller;
+    // Mysterybox informations
     uint256 public max_quantity;
     uint256 public box_quantity;
     address public randomx_address;
@@ -33,6 +36,10 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     */
     modifier onlyOwner(){
         require(msg.sender == owner_address, "Not owner");
+        _;
+    }
+    modifier onlyCaller(){
+        require(map_caller[msg.sender], "Not owner");
         _;
     }
     /*
@@ -57,6 +64,7 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         randomx_address = _randomx;
         author_address = _author;
         max_quantity = _max_quantity;
+        map_caller[msg.sender] = true;
     }    
     /**
     * @dev Change the owner of contract
@@ -67,6 +75,15 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         require(address(0) != _newOwner, "Invalid owner address");
         owner_address = _newOwner;
         emit ChangeOwner(_newOwner);
+    }
+    /**
+    * @dev set caller access rights.
+    * @param _caller The address of caller.
+    * @param _access The rights of access.
+    */
+    function setCaller(address _caller, bool _access)
+    public onlyOwner{
+        map_caller[_caller] = _access;
     }
     /**
     * @dev get author address.
@@ -92,7 +109,7 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     * @param _counts The number of boxes that will be generated.
     */
     function generate(address _to, uint256 _counts) 
-    public onlyOwner override{
+    public onlyCaller override{
         require(box_quantity.add(_counts) <= max_quantity, "Max quantity limited.");
         for (uint256 index = 0; index < _counts; index++) {
             _mint(_to, box_quantity, 1, "");  

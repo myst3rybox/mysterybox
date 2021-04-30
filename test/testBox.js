@@ -30,9 +30,18 @@ contract("MysteryBox", accounts => {
             "MysteryBox quantity NOT match."
         );
     });
+    it("MysteryBox should set caller.", async () => {
+        let instance = await MysteryBox.deployed();
+        await instance.setCaller(accounts[9], true);
+        let rights = await instance.map_caller.call(accounts[9]);
+        assert.equal(
+            rights, true,
+            "MysteryBox caller NOT match."
+        );
+    });
     it("MysteryBox should generate box.", async () => {
         let instance = await MysteryBox.deployed();
-        await instance.generate(accounts[1], 3);
+        await instance.generate(accounts[1], 3, {from: accounts[9]});
         quantity = await instance.box_quantity.call();
         assert.equal(
             quantity, 3,
