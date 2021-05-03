@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
  * @dev Interface of the RandomX。
  */
 interface iRandomX {
-    function SetCaller(address _caller, uint256 _allowed) external;
+    function SetCaller(address _caller, bool _access) external;
     function AddRandomSeed(uint256 _seed) external;
     function GetRandomX() external returns(uint256 random_number);
 }

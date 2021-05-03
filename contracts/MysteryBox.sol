@@ -27,7 +27,7 @@ contract MysteryBox is IMysteryBox, ERC1155 {
         uint256 types;
         uint256 level;
         uint256 price;
-        uint256 status; // 0:boxed, 1:unboxed, 2:on auction, 3:swapping
+        uint256 status; // 0:boxed, 1:unboxed
         string name;
     }
     attributes[] public boxes_attributes;
@@ -51,6 +51,8 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     event UnBox(address owner, uint256 index, uint256 types, uint256 level);
     // Called when owner changed.
     event ChangeOwner(address _newOwner);
+    // Called when debug.
+    event Debug(uint256 data, address addr);
     /**
     * @dev constructor that sets the random, author, max quantity and owner address
     * @param _randomx The address of RandomX contract.
@@ -125,11 +127,13 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     */
     function unBox(uint256[] memory _boxes) 
     public override{
+        require(_isEOA(msg.sender), "Not EOA.");
+        require(address(0) != randomx_address, "Invalid randomx address.");
         require(_boxes.length < 12, "Max box counts limited.");
         for (uint256 index = 0; index < _boxes.length; index++) {
             require(balanceOf(msg.sender, _boxes[index]) > 0, "Not this box's owner");
             attributes memory attr = boxes_attributes[_boxes[index]];
-            require(attr.level == 0 && attr.types == 0, "Box has been opened");
+            require(attr.level == 0 && attr.types == 0 && attr.status == 0, "Box has been opened");
             uint256 random_type = iRandomX(randomx_address).GetRandomX() % 100;
             if(random_type == 99){
                 // types(12)    1%
@@ -176,5 +180,17 @@ contract MysteryBox is IMysteryBox, ERC1155 {
     public override {
         require(balanceOf(msg.sender, _index) > 0, "Not this box's owner");
         boxes_attributes[_index].name = _name;
+    }
+    /**
+    * @dev Check whether address belongs to a EOA
+    * @param addr The address of user.
+    * @return bool
+    */
+    function _isEOA(address addr) 
+    internal view
+    returns (bool) {
+        uint size;
+        assembly { size := extcodesize(addr) }
+        return size == 0 && (tx.origin == msg.sender);
     }
 }
